@@ -1,5 +1,10 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+// import { auth } from "./lib/auth";
 
-export function proxy(_request: NextRequest) {
-	return NextResponse.next();
+// export function proxy(req: Request) {
+//   return auth.handler(req);
+// }
+
+export function proxy() {
+  return NextResponse.next();
 }
