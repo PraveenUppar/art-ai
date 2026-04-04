@@ -9,6 +9,7 @@ import db from "@/lib/db";
 import { chats } from "@/lib/db/schema/chats";
 
 import { createChat } from "./actions";
+import { AccountDropdown } from "./account-dropdown";
 
 const popularFactChecks = [
   {
@@ -185,17 +186,17 @@ export default async function ChatIndexPage() {
             </button>
           </form>
 
-          <div className="mt-6 min-h-0 flex-1 space-y-3 overflow-y-auto">
+          <div className="mt-6 min-h-0 flex flex-1 flex-col gap-3 overflow-hidden">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-500">
               Recent chats
             </p>
 
             {recentChats.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-4 py-5 text-sm leading-6 text-stone-600">
+              <div className="flex-1 rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-4 py-5 text-sm leading-6 text-stone-600">
                 No chats yet. Start your first conversation.
               </div>
             ) : (
-              <ul className="space-y-2">
+              <ul className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
                 {recentChats.map((chat) => (
                   <li key={chat.id}>
                     <Link
@@ -219,11 +220,8 @@ export default async function ChatIndexPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-500">
               Account
             </p>
-            <div className="mt-3 rounded-2xl bg-stone-50 p-4 text-sm text-stone-700">
-              Signed in as
-              <div className="mt-1 font-medium text-stone-950">
-                {session.user.email}
-              </div>
+            <div className="mt-3">
+              <AccountDropdown email={session.user.email} />
             </div>
           </footer>
         </aside>
