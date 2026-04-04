@@ -12,7 +12,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=flat-square&logo=postgresql)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker)](https://www.docker.com/)
 
-[Features](#-key-features) • [Architecture](#-architecture) • [Quick Start](#-quick-start) • [Development](#-development) • [Documentation](#-documentation)
+[Features](#-key-features) • [Architecture](#-architecture) • [Python SDK](#-python-sdk) • [Quick Start](#-quick-start) • [Development](#-development) • [Documentation](#-documentation)
 
 </div>
 
@@ -123,6 +123,55 @@ Unlike traditional AI chatbots that rely on unverified internet searches, **ART-
 | **Authentication** | Better Auth | Email/password authentication |
 | **AI/LLM** | Groq API, LangChain | Content generation & classification |
 | **Evidence** | Firecrawl API | Web scraping & search |
+| **Python SDK** | `art_ai_sdk` | Reusable generation + verification pipeline for Python apps |
+
+---
+
+## 🐍 Python SDK
+
+ART-AI ships with a first-class Python package in `SDK/` named `art_ai_sdk`.
+
+Use the SDK when you want the same multi-stage verification workflow without going through the web app or REST routes.
+
+### What the SDK provides
+
+- Function-first pipeline calls (`classify_content_relevance`, `collect_evidence`, `check_relevance`, `generate_and_verify_content`)
+- Client APIs (`ArtAIClient`, `AsyncArtAIClient`)
+- Provider injection for custom LLM/search implementations
+- Optional infra adapters for Redis progress, SQLAlchemy persistence, and Celery task submission
+
+### Install
+
+From repository root:
+
+```bash
+pip install -e ./SDK
+```
+
+With optional infra extras:
+
+```bash
+pip install -e "./SDK[infra]"
+```
+
+### Quick SDK usage
+
+```python
+from art_ai_sdk import ArtAIClient
+
+client = ArtAIClient()
+
+result = client.process(
+  task_id="demo-task-1",
+  user_prompt="Summarize the latest RBI inflation update and verify key claims.",
+)
+
+print(result["ok"])
+print(result["result"]["final_verdict"])
+print(result["result"]["content"])
+```
+
+For the complete SDK API, behavior, and model docs, see `SDK/README.md`.
 
 ---
 
@@ -329,6 +378,11 @@ art-ai/
 │   │   ├── ai.py           # LLM setup
 │   │   └── database.py     # DB connection
 │   └── celery_app.py       # Celery entry point
+│
+├── SDK/                     # Python SDK package (art_ai_sdk)
+│   ├── art_ai_sdk/         # SDK source code
+│   ├── pyproject.toml      # SDK package config
+│   └── README.md           # SDK usage and API docs
 │
 ├── docker-compose.yml       # Docker orchestration
 ├── README.md               # This file
@@ -636,6 +690,7 @@ docker-compose exec frontend bun run drizzle:push
 - [Frontend README](./frontend/README.md) - Next.js app details
 - [Backend README](./backend/README.md) - FastAPI server details
 - [Worker README](./worker/README.md) - Celery worker details
+- [SDK README](./SDK/README.md) - Python SDK usage, API, and integration guide
 
 ---
 
@@ -712,14 +767,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Drizzle ORM** for type-safe database queries
 - **FastAPI** for high-performance API framework
 - **Next.js** for powerful React framework
-
----
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/your-repo/art-ai/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-repo/art-ai/discussions)
-- **Email**: support@artai.example.com
 
 ---
 
