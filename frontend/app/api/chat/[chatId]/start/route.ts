@@ -51,6 +51,7 @@ export async function POST(
     userId: session.user.id,
     role: "user",
     content: userPrompt,
+    links: [],
     status: "submitted",
   });
 

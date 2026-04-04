@@ -48,6 +48,7 @@ def persist_chat_result(
     user_id: str | None,
     user_prompt: str,
     assistant_response: str,
+    assistant_links: list[str] | None = None,
     status: str,
 ) -> None:
     chats_table = get_reflected_table("chats")
@@ -81,30 +82,32 @@ def persist_chat_result(
         ).first()
 
         if not has_user_message:
-            conn.execute(
-                messages_table.insert().values(
-                    id=str(uuid4()),
-                    chat_id=chat_id,
-                    user_id=user_id,
-                    role="user",
-                    content=user_prompt,
-                    status="completed",
-                    task_id=task_id,
-                    created_at=now,
-                    updated_at=now,
-                )
-            )
+            user_message_values = {
+                "id": str(uuid4()),
+                "chat_id": chat_id,
+                "user_id": user_id,
+                "role": "user",
+                "content": user_prompt,
+                "status": "completed",
+                "task_id": task_id,
+                "created_at": now,
+                "updated_at": now,
+            }
+            if "links" in messages_table.c:
+                user_message_values["links"] = []
+            conn.execute(messages_table.insert().values(**user_message_values))
 
-        conn.execute(
-            messages_table.insert().values(
-                id=str(uuid4()),
-                chat_id=chat_id,
-                user_id=user_id,
-                role="assistant",
-                content=assistant_response,
-                status=status,
-                task_id=task_id,
-                created_at=now,
-                updated_at=now,
-            )
-        )
+        assistant_message_values = {
+            "id": str(uuid4()),
+            "chat_id": chat_id,
+            "user_id": user_id,
+            "role": "assistant",
+            "content": assistant_response,
+            "status": status,
+            "task_id": task_id,
+            "created_at": now,
+            "updated_at": now,
+        }
+        if "links" in messages_table.c:
+            assistant_message_values["links"] = assistant_links or []
+        conn.execute(messages_table.insert().values(**assistant_message_values))

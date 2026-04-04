@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { index, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 import { user } from "./better-auth";
 import { chats } from "./chats";
@@ -14,6 +14,7 @@ export const messages = pgTable(
     userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
     role: text("role").notNull(),
     content: text("content").notNull(),
+    links: jsonb("links").$type<string[]>().notNull().default([]),
     status: text("status").notNull().default("completed"),
     taskId: text("task_id"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
