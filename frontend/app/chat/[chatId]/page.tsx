@@ -7,9 +7,11 @@ import { eq, and, desc } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import db from "@/lib/db";
 import { chats } from "@/lib/db/schema/chats";
+import { messages } from "@/lib/db/schema/messages";
 
 import { createChat } from "../actions";
 import { AccountDropdown } from "../account-dropdown";
+import { ChatComposer } from "./chat-composer";
 import { ThreadTimeline } from "./thread-timeline";
 
 type ChatThreadPageProps = {
@@ -106,53 +108,34 @@ export default async function ChatThreadPage({ params }: ChatThreadPageProps) {
     notFound();
   }
 
+  const chatMessages = await db.query.messages.findMany({
+    where: eq(messages.chatId, chat.id),
+    orderBy: [messages.createdAt],
+    columns: {
+      id: true,
+      role: true,
+      content: true,
+      status: true,
+      createdAt: true,
+    },
+  });
+
   const dateFormatter = new Intl.DateTimeFormat("en", {
     month: "short",
     day: "numeric",
   });
 
-  const threadPreview = [
-    {
-      id: "m1",
-      role: "user",
-      sender: "You",
-      text: "Can you summarize what we finished today and give me clear next steps for this chat module?",
-      at: "10:21 AM",
-      status: "Seen",
-    },
-    {
-      id: "m2",
-      role: "assistant",
-      sender: "artAI",
-      text: "Progress update: auth and chat ownership checks are working, and the chat creation route now lands correctly inside the thread view.",
-      at: "10:22 AM",
-      status: "Delivered",
-    },
-    {
-      id: "m3",
-      role: "assistant",
-      sender: "artAI",
-      text: "Recommended next steps: 1) add a messages table linked to chat id, 2) render persisted messages by chronology, 3) connect the composer to streamed assistant responses.",
-      at: "10:23 AM",
-      status: "Delivered",
-    },
-    {
-      id: "m4",
-      role: "user",
-      sender: "You",
-      text: "Great. Also make the chat page feel more like a real messaging app with cleaner spacing and a proper compose area.",
-      at: "10:24 AM",
-      status: "Seen",
-    },
-    {
-      id: "m5",
-      role: "assistant",
-      sender: "artAI",
-      text: "Done. I redesigned this view with a messaging layout: conversation header, scrollable timeline, and an upgraded composer with model picker, attachment action, and send CTA.",
-      at: "10:25 AM",
-      status: "Delivered",
-    },
-  ] as const;
+  const threadPreview = chatMessages.map((message) => ({
+    id: message.id,
+    role: message.role === "assistant" ? "assistant" : "user",
+    sender: message.role === "assistant" ? "artAI" : "You",
+    text: message.content,
+    at: new Intl.DateTimeFormat("en", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(message.createdAt),
+    status: message.status,
+  }));
 
   return (
     <main className="h-dvh overflow-hidden bg-[linear-gradient(180deg,#fbf7f2_0%,#ffffff_45%,#f4efe8_100%)] p-4 text-stone-950 sm:p-5 lg:p-6">
@@ -163,7 +146,9 @@ export default async function ChatThreadPage({ params }: ChatThreadPageProps) {
               Workspace
             </p>
             <h1 className="text-2xl font-semibold tracking-tight">Chats</h1>
-            <p className="text-sm leading-6 text-stone-600">Continue your conversation</p>
+            <p className="text-sm leading-6 text-stone-600">
+              Continue your conversation
+            </p>
           </div>
 
           <form action={createChat} className="mt-5">
@@ -233,7 +218,9 @@ export default async function ChatThreadPage({ params }: ChatThreadPageProps) {
                 <h2 className="truncate text-xl font-semibold tracking-tight text-stone-950 sm:text-2xl">
                   {chat.title || "Untitled chat"}
                 </h2>
-                <p className="mt-1 line-clamp-1 text-xs text-stone-500">ID {chat.id}</p>
+                <p className="mt-1 line-clamp-1 text-xs text-stone-500">
+                  ID {chat.id}
+                </p>
               </div>
 
               <div className="hidden items-center gap-2 rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-xs text-stone-600 sm:flex">
@@ -244,63 +231,11 @@ export default async function ChatThreadPage({ params }: ChatThreadPageProps) {
 
             <ThreadTimeline chatId={chat.id} messages={threadPreview} />
 
-            <form className="border-t border-stone-200 bg-white p-3 sm:p-4">
-              <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-3">
-                <label htmlFor="thread-prompt" className="sr-only">
-                  Message
-                </label>
-                <textarea
-                  id="thread-prompt"
-                  rows={3}
-                  placeholder="Write a message..."
-                  className="w-full resize-none rounded-xl border border-transparent bg-white px-4 py-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-200"
-                />
-
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      aria-label="Attach file"
-                      className="inline-flex items-center justify-center rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-700 transition hover:bg-stone-100"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-4 w-4"
-                        aria-hidden="true"
-                      >
-                        <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.2a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-                      </svg>
-                    </button>
-                    <select
-                      name="model"
-                      defaultValue="gpt-5.3-codex"
-                      className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs text-stone-700 outline-none focus:border-stone-300"
-                    >
-                      <option value="gpt-5.3-codex">GPT-5.3 Codex</option>
-                      <option value="gpt-5-mini">GPT-5 mini</option>
-                      <option value="gpt-4.1">GPT-4.1</option>
-                    </select>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="inline-flex items-center justify-center rounded-xl bg-stone-950 px-5 py-2 text-sm font-semibold text-white transition hover:bg-stone-800"
-                  >
-                    Send message
-                  </button>
-                </div>
-              </div>
-            </form>
+            <ChatComposer chatId={chat.id} />
           </div>
         </section>
 
-        <aside className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-[0_24px_60px_rgba(120,74,34,0.08)] xl:max-h-[calc(100vh-4rem)] xl:overflow-y-auto">
+        <aside className="rounded-4xl border border-stone-200 bg-white p-5 shadow-[0_24px_60px_rgba(120,74,34,0.08)] xl:max-h-[calc(100vh-4rem)] xl:overflow-y-auto">
           <div className="space-y-6">
             <div className="space-y-2 border-b border-stone-200 pb-4">
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-500">

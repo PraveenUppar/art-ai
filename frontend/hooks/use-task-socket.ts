@@ -1,0 +1,73 @@
+"use client";
+
+import { useEffect, useMemo, useRef } from "react";
+import { io, Socket } from "socket.io-client";
+
+type TaskUpdate = {
+  task_id: string;
+  chat_id?: string | null;
+  status: string;
+  message: string;
+  step?: string;
+  progress?: number;
+  result?: unknown;
+};
+
+const SOCKET_URL =
+  process.env.NEXT_PUBLIC_FASTAPI_SOCKET_URL ?? "http://localhost:8000";
+
+export function useTaskSocket(
+  taskId: string | null,
+  onUpdate: (payload: TaskUpdate) => void,
+) {
+  const callbackRef = useRef(onUpdate);
+
+  useEffect(() => {
+    callbackRef.current = onUpdate;
+  }, [onUpdate]);
+
+  const socket = useMemo<Socket>(() => {
+    return io(SOCKET_URL, {
+      path: "/socket.io",
+      transports: ["websocket"],
+      autoConnect: false,
+      reconnection: true,
+    });
+  }, []);
+
+  useEffect(() => {
+    socket.connect();
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    if (!taskId) {
+      return;
+    }
+
+    const join = () => {
+      socket.emit("join_room_event", { room: taskId });
+    };
+
+    const onTaskUpdate = (payload: TaskUpdate) => {
+      if (payload.task_id !== taskId) {
+        return;
+      }
+      callbackRef.current(payload);
+    };
+
+    if (socket.connected) {
+      join();
+    }
+    socket.on("connect", join);
+    socket.on("task_update", onTaskUpdate);
+
+    return () => {
+      socket.off("connect", join);
+      socket.off("task_update", onTaskUpdate);
+    };
+  }, [socket, taskId]);
+}
