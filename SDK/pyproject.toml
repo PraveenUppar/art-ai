@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "art-ai-sdk"
+version = "0.1.0"
+description = "SDK for content generation, evidence collection, and claim verification."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "firecrawl-py>=4.22.0",
+    "langchain>=1.2.15",
+    "langchain-groq>=1.1.2",
+    "pydantic>=2.11.7",
+    "pydantic-settings>=2.13.1",
+]
+
+[project.optional-dependencies]
+infra = [
+    "celery[redis]>=5.6.3",
+    "python-socketio>=5.16.1",
+    "redis>=6.4.0",
+    "sqlalchemy>=2.0.44",
+    "psycopg[binary]>=3.2.11",
+]
+dev = [
+    "pytest>=8.4.2",
+    "ruff>=0.6.9",
+]
+
+[tool.setuptools.packages.find]
+include = ["art_ai_sdk*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
