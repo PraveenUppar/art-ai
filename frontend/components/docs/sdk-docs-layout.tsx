@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 
 import {
   BookOpenText,
@@ -22,7 +23,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Sidebar,
@@ -85,16 +86,16 @@ const functionLinks = [
 ] as const;
 
 const sectionKeywords: Record<(typeof sectionLinks)[number]["id"], string[]> = {
-  "intro": ["workflow", "overview", "generate", "verify"],
+  intro: ["workflow", "overview", "generate", "verify"],
   "installation-guide": ["pip", "requirements", "install", "infra", "dev"],
-  "configuration": ["environment", "sdksettings", "groq", "firecrawl"],
+  configuration: ["environment", "sdksettings", "groq", "firecrawl"],
   "getting-started": ["sync", "async", "process", "function-first"],
   "critical-functions": functionLinks.map((fn) => fn.title.toLowerCase()),
   "client-api": ["artaiclient", "asyncartaiclient"],
   "providers-and-di": ["provider", "dependency injection", "callable"],
-  "hooks": ["progress", "persistence", "callback"],
+  hooks: ["progress", "persistence", "callback"],
   "infra-adapters": ["redis", "sqlalchemy", "celery"],
-  "models": ["domaintype", "classificationresult", "linkcheckresult"],
+  models: ["domaintype", "classificationresult", "linkcheckresult"],
   "retry-rules": ["iterations", "unverified", "confidence", "retries"],
 };
 
@@ -132,10 +133,13 @@ function CodeBlock({ code }: { code: string }) {
   );
 }
 
-export function SDKDocsLayout() {
-  const [activeSection, setActiveSection] = useState<(typeof sectionLinks)[number]["id"]>(
-    "intro",
-  );
+type SDKDocsLayoutProps = {
+  isLoggedIn: boolean;
+};
+
+export function SDKDocsLayout({ isLoggedIn }: SDKDocsLayoutProps) {
+  const [activeSection, setActiveSection] =
+    useState<(typeof sectionLinks)[number]["id"]>("intro");
   const [search, setSearch] = useState("");
 
   const normalizedSearch = search.trim().toLowerCase();
@@ -146,10 +150,7 @@ export function SDKDocsLayout() {
     }
 
     return sectionLinks.filter((section) => {
-      const haystack = [
-        section.title,
-        ...sectionKeywords[section.id],
-      ]
+      const haystack = [section.title, ...sectionKeywords[section.id]]
         .join(" ")
         .toLowerCase();
       return haystack.includes(normalizedSearch);
@@ -238,7 +239,11 @@ export function SDKDocsLayout() {
 
   return (
     <SidebarProvider>
-      <Sidebar variant="inset" collapsible="icon" className="bg-linear-to-b from-stone-100/70 to-background">
+      <Sidebar
+        variant="inset"
+        collapsible="icon"
+        className="bg-linear-to-b from-stone-100/70 to-background"
+      >
         <SidebarHeader className="pt-4">
           <div className="mx-2 rounded-xl border border-stone-300/60 bg-background/80 px-3 py-3 shadow-xs group-data-[collapsible=icon]:hidden">
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
@@ -264,7 +269,7 @@ export function SDKDocsLayout() {
                 {visibleSections.map((item) => (
                   <SidebarMenuItem key={item.id}>
                     <SidebarMenuButton
-                      render={<a href={`#${item.id}`} />}
+                      render={<a href={`#${item.id}`} title={item.title} />}
                       tooltip={item.title}
                       isActive={item.id === activeSection}
                       className={cn(
@@ -288,7 +293,7 @@ export function SDKDocsLayout() {
                 {matchingFunctions.map((item) => (
                   <SidebarMenuItem key={item.id}>
                     <SidebarMenuButton
-                      render={<a href={`#${item.id}`} />}
+                      render={<a href={`#${item.id}`} title={item.title} />}
                       tooltip={item.title}
                       className="rounded-lg text-xs transition-all hover:translate-x-0.5 group-data-[collapsible=icon]:hover:translate-x-0"
                     >
@@ -307,7 +312,29 @@ export function SDKDocsLayout() {
       <SidebarInset>
         <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-stone-300/70 bg-background/75 px-4 backdrop-blur-md">
           <SidebarTrigger />
-          <p className="text-sm font-medium text-muted-foreground">SDK setup and usage guide</p>
+          <p className="text-sm font-medium text-muted-foreground">
+            SDK setup and usage guide
+          </p>
+          <div className="ml-auto flex items-center gap-2">
+            <Link
+              href="/"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "border-stone-300/70 bg-background/80"
+              )}
+            >
+              Home
+            </Link>
+            <Link
+              href={isLoggedIn ? "/chat" : "/auth?mode=signin&redirect=/chat"}
+              className={cn(
+                buttonVariants({ size: "sm" }),
+                "bg-stone-900 text-white hover:bg-stone-800"
+              )}
+            >
+              {isLoggedIn ? "Chat" : "Login"}
+            </Link>
+          </div>
         </header>
 
         <main className="relative mx-auto w-full max-w-5xl px-4 py-8 md:px-8 md:py-12">
@@ -323,22 +350,25 @@ export function SDKDocsLayout() {
               art_ai_sdk Setup and Usage
             </h1>
             <p className="max-w-3xl text-sm text-stone-700 md:text-base">
-              This page documents the full generate + evidence + verification flow,
-              including installation, configuration, sync or async client usage, and
-              provider injection patterns.
+              This page documents the full generate + evidence + verification
+              flow, including installation, configuration, sync or async client
+              usage, and provider injection patterns.
             </p>
             <div className="mt-5 flex flex-wrap gap-2 text-xs font-medium text-stone-700">
-              <span className="rounded-full border border-stone-300/70 bg-background/70 px-3 py-1 shadow-xs">Python 3.12+</span>
-              <span className="rounded-full border border-stone-300/70 bg-background/70 px-3 py-1 shadow-xs">Function-first + Client API</span>
-              <span className="rounded-full border border-stone-300/70 bg-background/70 px-3 py-1 shadow-xs">Retries + claim verification</span>
+              <span className="rounded-full border border-stone-300/70 bg-background/70 px-3 py-1 shadow-xs">
+                Python 3.12+
+              </span>
+              <span className="rounded-full border border-stone-300/70 bg-background/70 px-3 py-1 shadow-xs">
+                Function-first + Client API
+              </span>
+              <span className="rounded-full border border-stone-300/70 bg-background/70 px-3 py-1 shadow-xs">
+                Retries + claim verification
+              </span>
             </div>
           </section>
 
           <section className="mb-8 space-y-3 rounded-2xl border border-stone-300/70 bg-card/90 p-4 shadow-xs backdrop-blur">
-            <label
-              htmlFor="docs-search"
-              className="text-sm font-semibold"
-            >
+            <label htmlFor="docs-search" className="text-sm font-semibold">
               Find sections and function names
             </label>
             <Input
@@ -347,7 +377,9 @@ export function SDKDocsLayout() {
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Try: collect_evidence, retry rules, async"
             />
-            {normalizedSearch && visibleSections.length === 0 && matchingFunctions.length === 0 ? (
+            {normalizedSearch &&
+            visibleSections.length === 0 &&
+            matchingFunctions.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 No matches found for "{search}".
               </p>
@@ -356,89 +388,120 @@ export function SDKDocsLayout() {
 
           <article className="space-y-8">
             {visibleSectionIds.has("intro") ? (
-            <section id="intro" className="scroll-mt-20 space-y-4 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs">
-              <h2 className="text-2xl font-semibold tracking-tight">Intro</h2>
-              <p className="text-sm text-muted-foreground md:text-base">
-                Use this package to run the workflow directly from Python without
-                going through HTTP routes. It preserves the same high-level behavior
-                as worker execution.
-              </p>
-              <ol className="ml-5 list-decimal space-y-1 text-sm text-muted-foreground md:text-base">
-                <li>Generate response text from an LLM.</li>
-                <li>Classify domain relevance.</li>
-                <li>Generate atomic fact-check questions.</li>
-                <li>Collect evidence from domain-specific sources.</li>
-                <li>Verify claims against evidence.</li>
-                <li>Retry when quality is weak.</li>
-              </ol>
-            </section>
+              <section
+                id="intro"
+                className="scroll-mt-20 space-y-4 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs"
+              >
+                <h2 className="text-2xl font-semibold tracking-tight">Intro</h2>
+                <p className="text-sm text-muted-foreground md:text-base">
+                  Use this package to run the workflow directly from Python
+                  without going through HTTP routes. It preserves the same
+                  high-level behavior as worker execution.
+                </p>
+                <ol className="ml-5 list-decimal space-y-1 text-sm text-muted-foreground md:text-base">
+                  <li>Generate response text from an LLM.</li>
+                  <li>Classify domain relevance.</li>
+                  <li>Generate atomic fact-check questions.</li>
+                  <li>Collect evidence from domain-specific sources.</li>
+                  <li>Verify claims against evidence.</li>
+                  <li>Retry when quality is weak.</li>
+                </ol>
+              </section>
             ) : null}
 
             {visibleSectionIds.has("installation-guide") ? (
-            <section id="installation-guide" className="scroll-mt-20 space-y-4 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs">
-              <h2 className="text-2xl font-semibold tracking-tight">Installation Guide</h2>
-              <Accordion defaultValue={["requirements"]} className="rounded-xl border border-stone-300/70 bg-background/70 p-3">
-                <AccordionItem value="requirements">
-                  <AccordionTrigger>Requirements</AccordionTrigger>
-                  <AccordionContent>
-                    <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
-                      <li>Python 3.12+</li>
-                      <li>GROQ_API_KEY</li>
-                      <li>FIRE_CRAWL_API_KEY</li>
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="install-core">
-                  <AccordionTrigger>Install Core SDK</AccordionTrigger>
-                  <AccordionContent>
-                    <CodeBlock code={`pip install -e ./SDK`} />
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="install-optional">
-                  <AccordionTrigger>Optional Extras (infra/dev)</AccordionTrigger>
-                  <AccordionContent>
-                    <CodeBlock
-                      code={`pip install -e "./SDK[infra]"
+              <section
+                id="installation-guide"
+                className="scroll-mt-20 space-y-4 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs"
+              >
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  Installation Guide
+                </h2>
+                <Accordion
+                  defaultValue={["requirements"]}
+                  className="rounded-xl border border-stone-300/70 bg-background/70 p-3"
+                >
+                  <AccordionItem value="requirements">
+                    <AccordionTrigger>Requirements</AccordionTrigger>
+                    <AccordionContent>
+                      <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
+                        <li>Python 3.12+</li>
+                        <li>GROQ_API_KEY</li>
+                        <li>FIRE_CRAWL_API_KEY</li>
+                      </ul>
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="install-core">
+                    <AccordionTrigger>Install Core SDK</AccordionTrigger>
+                    <AccordionContent>
+                      <CodeBlock code={`pip install -e ./SDK`} />
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="install-optional">
+                    <AccordionTrigger>
+                      Optional Extras (infra/dev)
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <CodeBlock
+                        code={`pip install -e "./SDK[infra]"
 pip install -e "./SDK[dev]"`}
-                    />
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </section>
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </section>
             ) : null}
 
             {visibleSectionIds.has("configuration") ? (
-            <section id="configuration" className="scroll-mt-20 space-y-4 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs">
-              <h2 className="text-2xl font-semibold tracking-tight">Configuration</h2>
-              <p className="text-sm text-muted-foreground md:text-base">
-                Configuration is loaded via SDKSettings (pydantic-settings). Set
-                environment variables for default providers:
-              </p>
-              <CodeBlock
-                code={`export GROQ_API_KEY="your-groq-key"
+              <section
+                id="configuration"
+                className="scroll-mt-20 space-y-4 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs"
+              >
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  Configuration
+                </h2>
+                <p className="text-sm text-muted-foreground md:text-base">
+                  Configuration is loaded via SDKSettings (pydantic-settings).
+                  Set environment variables for default providers:
+                </p>
+                <CodeBlock
+                  code={`export GROQ_API_KEY="your-groq-key"
 export GROQ_MODEL="openai/gpt-oss-20b"
 export FIRE_CRAWL_API_KEY="your-firecrawl-key"
 
 export REDIS_URL="redis://localhost:6379/0"
 export DATABASE_URL="postgresql://user:pass@localhost:5432/db"`}
-              />
-              <p className="text-sm text-muted-foreground md:text-base">
-                To disable writing evidence to disk, pass
-                <span className="font-medium text-foreground"> evidence_output_path=None </span>
-                 in collect_evidence() or client.process().
-              </p>
-            </section>
+                />
+                <p className="text-sm text-muted-foreground md:text-base">
+                  To disable writing evidence to disk, pass
+                  <span className="font-medium text-foreground">
+                    {" "}
+                    evidence_output_path=None{" "}
+                  </span>
+                  in collect_evidence() or client.process().
+                </p>
+              </section>
             ) : null}
 
             {visibleSectionIds.has("getting-started") ? (
-            <section id="getting-started" className="scroll-mt-20 space-y-4 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs">
-              <h2 className="text-2xl font-semibold tracking-tight">Getting Started</h2>
-              <Accordion defaultValue={["sync"]} className="rounded-xl border border-stone-300/70 bg-background/70 p-3">
-                <AccordionItem value="sync">
-                  <AccordionTrigger>Quick Start (Sync Client)</AccordionTrigger>
-                  <AccordionContent>
-                    <CodeBlock
-                      code={`from art_ai_sdk import ArtAIClient
+              <section
+                id="getting-started"
+                className="scroll-mt-20 space-y-4 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs"
+              >
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  Getting Started
+                </h2>
+                <Accordion
+                  defaultValue={["sync"]}
+                  className="rounded-xl border border-stone-300/70 bg-background/70 p-3"
+                >
+                  <AccordionItem value="sync">
+                    <AccordionTrigger>
+                      Quick Start (Sync Client)
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <CodeBlock
+                        code={`from art_ai_sdk import ArtAIClient
 
 client = ArtAIClient()
 result = client.process(
@@ -448,14 +511,14 @@ result = client.process(
 
 print(result["ok"])
 print(result["result"]["final_verdict"])`}
-                    />
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="async">
-                  <AccordionTrigger>Async Client</AccordionTrigger>
-                  <AccordionContent>
-                    <CodeBlock
-                      code={`import asyncio
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="async">
+                    <AccordionTrigger>Async Client</AccordionTrigger>
+                    <AccordionContent>
+                      <CodeBlock
+                        code={`import asyncio
 from art_ai_sdk import AsyncArtAIClient
 
 async def main():
@@ -467,14 +530,14 @@ async def main():
     print(result["ok"], result["task_id"])
 
 asyncio.run(main())`}
-                    />
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="functions">
-                  <AccordionTrigger>Function-First Pipeline</AccordionTrigger>
-                  <AccordionContent>
-                    <CodeBlock
-                      code={`from art_ai_sdk import (
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="functions">
+                    <AccordionTrigger>Function-First Pipeline</AccordionTrigger>
+                    <AccordionContent>
+                      <CodeBlock
+                        code={`from art_ai_sdk import (
     classify_content_relevance,
     generate_fact_check_questions,
     collect_evidence,
@@ -485,142 +548,206 @@ classification = classify_content_relevance(user_prompt, content)
 questions = generate_fact_check_questions(user_prompt, content)
 evidence = collect_evidence(questions.FactCheckQuestions, [classification.content_domain])
 verdict = check_relevance(user_prompt, content, evidence)`}
-                    />
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </section>
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </section>
             ) : null}
 
             {visibleSectionIds.has("critical-functions") ? (
-            <section id="critical-functions" className="scroll-mt-20 space-y-4 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs">
-              <h2 className="text-2xl font-semibold tracking-tight">Critical Functions</h2>
-              <Accordion defaultValue={["classify"]} className="rounded-xl border border-stone-300/70 bg-background/70 p-3">
-                <AccordionItem id="fn-classify-content-relevance" value="classify">
-                  <AccordionTrigger>classify_content_relevance(...)</AccordionTrigger>
-                  <AccordionContent>
-                    Classifies prompt and generated content into domains and returns
-                    ClassificationResult with relevance and confidence.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem id="fn-generate-fact-check-questions" value="factcheck">
-                  <AccordionTrigger>generate_fact_check_questions(...)</AccordionTrigger>
-                  <AccordionContent>
-                    Generates atomic yes/no verification questions and normalizes
-                    expected answers to yes or no.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem id="fn-collect-evidence" value="evidence">
-                  <AccordionTrigger>collect_evidence(...)</AccordionTrigger>
-                  <AccordionContent>
-                    Collects evidence in parallel over domain and question pairs,
-                    and can write output to evidence_chunks.json by default.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem id="fn-check-relevance" value="relevance">
-                  <AccordionTrigger>check_relevance(...)</AccordionTrigger>
-                  <AccordionContent>
-                    Verifies claim status against evidence and retries parsing once
-                    with a fallback compact-evidence prompt path if needed.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem id="fn-generate-and-verify-content" value="orchestration">
-                  <AccordionTrigger>generate_and_verify_content(...)</AccordionTrigger>
-                  <AccordionContent>
-                    End-to-end orchestration used by client.process(), including
-                    progress events, retries, and failure handling.
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </section>
+              <section
+                id="critical-functions"
+                className="scroll-mt-20 space-y-4 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs"
+              >
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  Critical Functions
+                </h2>
+                <Accordion
+                  defaultValue={["classify"]}
+                  className="rounded-xl border border-stone-300/70 bg-background/70 p-3"
+                >
+                  <AccordionItem
+                    id="fn-classify-content-relevance"
+                    value="classify"
+                  >
+                    <AccordionTrigger>
+                      classify_content_relevance(...)
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      Classifies prompt and generated content into domains and
+                      returns ClassificationResult with relevance and
+                      confidence.
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem
+                    id="fn-generate-fact-check-questions"
+                    value="factcheck"
+                  >
+                    <AccordionTrigger>
+                      generate_fact_check_questions(...)
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      Generates atomic yes/no verification questions and
+                      normalizes expected answers to yes or no.
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem id="fn-collect-evidence" value="evidence">
+                    <AccordionTrigger>collect_evidence(...)</AccordionTrigger>
+                    <AccordionContent>
+                      Collects evidence in parallel over domain and question
+                      pairs, and can write output to evidence_chunks.json by
+                      default.
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem id="fn-check-relevance" value="relevance">
+                    <AccordionTrigger>check_relevance(...)</AccordionTrigger>
+                    <AccordionContent>
+                      Verifies claim status against evidence and retries parsing
+                      once with a fallback compact-evidence prompt path if
+                      needed.
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem
+                    id="fn-generate-and-verify-content"
+                    value="orchestration"
+                  >
+                    <AccordionTrigger>
+                      generate_and_verify_content(...)
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      End-to-end orchestration used by client.process(),
+                      including progress events, retries, and failure handling.
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </section>
             ) : null}
 
             {visibleSectionIds.has("client-api") ? (
-            <section id="client-api" className="scroll-mt-20 space-y-3 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs">
-              <h2 className="text-2xl font-semibold tracking-tight">Client API</h2>
-              <p className="text-sm text-muted-foreground md:text-base">
-                ArtAIClient is the standard sync entry point. AsyncArtAIClient mirrors
-                the same API and uses asyncio.to_thread internally to remain
-                async-friendly.
-              </p>
-            </section>
+              <section
+                id="client-api"
+                className="scroll-mt-20 space-y-3 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs"
+              >
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  Client API
+                </h2>
+                <p className="text-sm text-muted-foreground md:text-base">
+                  ArtAIClient is the standard sync entry point. AsyncArtAIClient
+                  mirrors the same API and uses asyncio.to_thread internally to
+                  remain async-friendly.
+                </p>
+              </section>
             ) : null}
 
             {visibleSectionIds.has("providers-and-di") ? (
-            <section id="providers-and-di" className="scroll-mt-20 space-y-4 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs">
-              <h2 className="text-2xl font-semibold tracking-tight">Providers and Dependency Injection</h2>
-              <p className="text-sm text-muted-foreground md:text-base">
-                You can inject LLM and search providers for tests or custom
-                integrations.
-              </p>
-              <CodeBlock
-                code={`from art_ai_sdk import ArtAIClient, CallableLLMProvider, CallableSearchProvider
+              <section
+                id="providers-and-di"
+                className="scroll-mt-20 space-y-4 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs"
+              >
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  Providers and Dependency Injection
+                </h2>
+                <p className="text-sm text-muted-foreground md:text-base">
+                  You can inject LLM and search providers for tests or custom
+                  integrations.
+                </p>
+                <CodeBlock
+                  code={`from art_ai_sdk import ArtAIClient, CallableLLMProvider, CallableSearchProvider
 
 client = ArtAIClient(
     llm_provider=CallableLLMProvider(fake_llm),
     search_provider=CallableSearchProvider(fake_search),
 )`}
-              />
-            </section>
+                />
+              </section>
             ) : null}
 
             {visibleSectionIds.has("hooks") ? (
-            <section id="hooks" className="scroll-mt-20 space-y-3 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs">
-              <h2 className="text-2xl font-semibold tracking-tight">Progress and Persistence Hooks</h2>
-              <p className="text-sm text-muted-foreground md:text-base">
-                Progress callback emits task status snapshots across key milestones.
-                Persistence hooks run when chat_id is provided.
-              </p>
-            </section>
+              <section
+                id="hooks"
+                className="scroll-mt-20 space-y-3 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs"
+              >
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  Progress and Persistence Hooks
+                </h2>
+                <p className="text-sm text-muted-foreground md:text-base">
+                  Progress callback emits task status snapshots across key
+                  milestones. Persistence hooks run when chat_id is provided.
+                </p>
+              </section>
             ) : null}
 
             {visibleSectionIds.has("infra-adapters") ? (
-            <section id="infra-adapters" className="scroll-mt-20 space-y-3 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs">
-              <h2 className="text-2xl font-semibold tracking-tight">Optional Infra Adapters</h2>
-              <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground md:text-base">
-                <li>RedisProgressAdapter</li>
-                <li>SQLAlchemyPersistenceAdapter</li>
-                <li>CeleryTaskAdapter</li>
-              </ul>
-            </section>
+              <section
+                id="infra-adapters"
+                className="scroll-mt-20 space-y-3 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs"
+              >
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  Optional Infra Adapters
+                </h2>
+                <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground md:text-base">
+                  <li>RedisProgressAdapter</li>
+                  <li>SQLAlchemyPersistenceAdapter</li>
+                  <li>CeleryTaskAdapter</li>
+                </ul>
+              </section>
             ) : null}
 
             {visibleSectionIds.has("models") ? (
-            <section id="models" className="scroll-mt-20 space-y-3 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs">
-              <h2 className="text-2xl font-semibold tracking-tight">Return Shapes and Data Models</h2>
-              <p className="text-sm text-muted-foreground md:text-base">
-                Key models include DomainType, ClassificationResult, FactCheckItem,
-                FactCheckResult, LinkCheckClaims, LinkCheckResult, and TaskStatus.
-              </p>
-            </section>
+              <section
+                id="models"
+                className="scroll-mt-20 space-y-3 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs"
+              >
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  Return Shapes and Data Models
+                </h2>
+                <p className="text-sm text-muted-foreground md:text-base">
+                  Key models include DomainType, ClassificationResult,
+                  FactCheckItem, FactCheckResult, LinkCheckClaims,
+                  LinkCheckResult, and TaskStatus.
+                </p>
+              </section>
             ) : null}
 
             {visibleSectionIds.has("retry-rules") ? (
-            <section id="retry-rules" className="scroll-mt-20 space-y-4 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs">
-              <h2 className="text-2xl font-semibold tracking-tight">Behavior and Retry Rules</h2>
-              <Accordion defaultValue={["rules"]} className="rounded-xl border border-stone-300/70 bg-background/70 p-3">
-                <AccordionItem value="rules">
-                  <AccordionTrigger>Core retry logic</AccordionTrigger>
-                  <AccordionContent>
-                    <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
-                      <li>tries_left = max(1, iterations)</li>
-                      <li>
-                        Domain gate requires is_relevant, domain_match, and
-                        confidence_score &gt;= 0.5
-                      </li>
-                      <li>
-                        secondary domain added when confidence &lt; 0.7 and
-                        alternate_domain exists
-                      </li>
-                      <li>
-                        unverified ratio &gt; 0.7 triggers targeted regeneration
-                      </li>
-                      <li>final failure returns {`{ "ok": False, "task_id": ... }`}</li>
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </section>
+              <section
+                id="retry-rules"
+                className="scroll-mt-20 space-y-4 rounded-2xl border border-stone-300/70 bg-card/85 p-6 shadow-xs"
+              >
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  Behavior and Retry Rules
+                </h2>
+                <Accordion
+                  defaultValue={["rules"]}
+                  className="rounded-xl border border-stone-300/70 bg-background/70 p-3"
+                >
+                  <AccordionItem value="rules">
+                    <AccordionTrigger>Core retry logic</AccordionTrigger>
+                    <AccordionContent>
+                      <ul className="ml-5 list-disc space-y-1 text-sm text-muted-foreground">
+                        <li>tries_left = max(1, iterations)</li>
+                        <li>
+                          Domain gate requires is_relevant, domain_match, and
+                          confidence_score &gt;= 0.5
+                        </li>
+                        <li>
+                          secondary domain added when confidence &lt; 0.7 and
+                          alternate_domain exists
+                        </li>
+                        <li>
+                          unverified ratio &gt; 0.7 triggers targeted
+                          regeneration
+                        </li>
+                        <li>
+                          final failure returns{" "}
+                          {`{ "ok": False, "task_id": ... }`}
+                        </li>
+                      </ul>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </section>
             ) : null}
           </article>
 

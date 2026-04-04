@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { authClient } from "@/lib/auth-client";
@@ -420,7 +421,7 @@ export default function AuthForm() {
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(255,208,184,0.3),_transparent_34%),linear-gradient(180deg,_#fff9f5_0%,_#ffffff_100%)] px-6 py-12 text-stone-950">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(255,208,184,0.3),transparent_34%),linear-gradient(180deg,#fff9f5_0%,#ffffff_100%)] px-6 py-12 text-stone-950">
       <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-6xl items-center">
         <div className="grid w-full gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           {/* ── Left panel ── */}
@@ -526,6 +527,13 @@ export default function AuthForm() {
                     ? "Sign in"
                     : "Create account"}
               </button>
+
+              <Link
+                href="/"
+                className="inline-flex w-full items-center justify-center rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm font-semibold text-stone-700 transition hover:bg-stone-50"
+              >
+                Back to home
+              </Link>
             </form>
           </section>
         </div>

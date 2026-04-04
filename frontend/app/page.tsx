@@ -2,17 +2,17 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(255,212,166,0.35),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(255,158,129,0.24),_transparent_28%),linear-gradient(180deg,_#fff7f0_0%,_#fffdf9_100%)] text-stone-950">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(255,212,166,0.35),transparent_35%),radial-gradient(circle_at_top_right,rgba(255,158,129,0.24),transparent_28%),linear-gradient(180deg,#fff7f0_0%,#fffdf9_100%)] text-stone-950">
       <div className="mx-auto flex min-h-screen w-full max-w-6xl items-center px-6 py-16 lg:px-10">
         <div className="grid w-full gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <section className="space-y-8">
             <span className="inline-flex items-center rounded-full border border-stone-300/70 bg-white/70 px-4 py-2 text-sm font-medium tracking-wide text-stone-700 shadow-sm backdrop-blur">
-              A trusted platform for authentic AI conversations
+              ART (Accessible Reliable Trustable) AI
             </span>
             <div className="space-y-5">
               <h1 className="max-w-2xl text-5xl font-semibold tracking-tight sm:text-6xl lg:text-7xl">
-                Trust your AI assistant with facts - not just internet search
-                results.
+                Trust your AI assistant with facts checks - not just internet
+                search results.
               </h1>
               <p className="max-w-xl text-lg leading-8 text-stone-700 sm:text-xl">
                 A trusted platform for authentic AI conversations — where your
@@ -21,14 +21,17 @@ export default function Home() {
                 responses that are accurate, consistent, and grounded in facts
                 you can depend on
               </p>
+              <p className="text-sm font-medium text-stone-600">
+                Built by Team Chola Bhatura at Hackbyte 4.0
+              </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/auth?mode=signin"
-                  className="inline-flex items-center justify-center rounded-full bg-stone-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-stone-800"
-                >
-                  CLICK HERE TO TRY NOW !!
-                </Link>
+              <Link
+                href="/auth?mode=signin"
+                className="inline-flex items-center justify-center rounded-full bg-stone-950 px-7 py-3.5 text-sm font-semibold tracking-wide text-white shadow-[0_10px_24px_rgba(28,25,23,0.28)] transition hover:scale-[1.01] hover:bg-stone-800"
+              >
+                Try ART AI now
+              </Link>
               <Link
                 href="/docs"
                 className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-950 transition hover:border-stone-400 hover:bg-stone-50"
