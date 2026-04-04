@@ -82,8 +82,8 @@ All `/api/*` endpoints require header `x-internal-secret` matching `INTERNAL_SHA
 
 ```json
 {
-	"user_prompt": "Explain inflation in simple terms",
-	"user_id": "user-id"
+  "user_prompt": "Explain inflation in simple terms",
+  "user_id": "user-id"
 }
 ```
 
@@ -91,9 +91,9 @@ All `/api/*` endpoints require header `x-internal-secret` matching `INTERNAL_SHA
 
 ```json
 {
-	"task_id": "uuid",
-	"chat_id": "chat-id",
-	"status": "queued"
+  "task_id": "uuid",
+  "chat_id": "chat-id",
+  "status": "queued"
 }
 ```
 

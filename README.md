@@ -111,19 +111,19 @@ Unlike traditional AI chatbots that rely on unverified internet searches, **ART-
 
 ### Tech Stack
 
-| Component | Technology | Purpose |
-|-----------|-----------|---------|
-| **Frontend** | Next.js 16, React 19, TypeScript | User interface & server-side rendering |
-| **UI Library** | TailwindCSS v4, shadcn, Base UI | Responsive design & components |
-| **Backend** | FastAPI, Uvicorn | REST API & WebSocket server |
-| **Worker** | Celery, Python 3.12+ | Background task processing |
-| **Database** | PostgreSQL 16, Drizzle ORM | Data persistence & migrations |
-| **Cache/Broker** | Redis 7 | Task queue & pub/sub messaging |
-| **Real-time** | Socket.IO (Redis adapter) | Live progress updates |
-| **Authentication** | Better Auth | Email/password authentication |
-| **AI/LLM** | Groq API, LangChain | Content generation & classification |
-| **Evidence** | Firecrawl API | Web scraping & search |
-| **Python SDK** | `art_ai_sdk` | Reusable generation + verification pipeline for Python apps |
+| Component          | Technology                       | Purpose                                                     |
+| ------------------ | -------------------------------- | ----------------------------------------------------------- |
+| **Frontend**       | Next.js 16, React 19, TypeScript | User interface & server-side rendering                      |
+| **UI Library**     | TailwindCSS v4, shadcn, Base UI  | Responsive design & components                              |
+| **Backend**        | FastAPI, Uvicorn                 | REST API & WebSocket server                                 |
+| **Worker**         | Celery, Python 3.12+             | Background task processing                                  |
+| **Database**       | PostgreSQL 16, Drizzle ORM       | Data persistence & migrations                               |
+| **Cache/Broker**   | Redis 7                          | Task queue & pub/sub messaging                              |
+| **Real-time**      | Socket.IO (Redis adapter)        | Live progress updates                                       |
+| **Authentication** | Better Auth                      | Email/password authentication                               |
+| **AI/LLM**         | Groq API, LangChain              | Content generation & classification                         |
+| **Evidence**       | Firecrawl API                    | Web scraping & search                                       |
+| **Python SDK**     | `art_ai_sdk`                     | Reusable generation + verification pipeline for Python apps |
 
 ---
 
@@ -438,6 +438,7 @@ docker-compose exec frontend bun run drizzle:push
 ### Tables
 
 #### `users` (Better Auth)
+
 ```sql
 id              TEXT PRIMARY KEY
 email           TEXT UNIQUE NOT NULL
@@ -449,6 +450,7 @@ updatedAt       TIMESTAMP DEFAULT NOW()
 ```
 
 #### `chats`
+
 ```sql
 id                 TEXT PRIMARY KEY
 userId             TEXT REFERENCES users(id) ON DELETE CASCADE
@@ -462,6 +464,7 @@ INDEX: chats_userId_idx ON (userId)
 ```
 
 #### `messages`
+
 ```sql
 id         TEXT PRIMARY KEY
 chatId     TEXT REFERENCES chats(id) ON DELETE CASCADE
@@ -485,15 +488,18 @@ INDEX: messages_taskId_idx ON (taskId)
 ### REST Endpoints
 
 #### `POST /api/chat/{chatId}/start`
+
 Start a new fact-checking task.
 
 **Headers:**
+
 ```
 Content-Type: application/json
 internal-shared-secret: <your-secret>
 ```
 
 **Body:**
+
 ```json
 {
   "prompt": "What are the health benefits of turmeric?",
@@ -503,6 +509,7 @@ internal-shared-secret: <your-secret>
 ```
 
 **Response:**
+
 ```json
 {
   "status": "queued",
@@ -511,9 +518,11 @@ internal-shared-secret: <your-secret>
 ```
 
 #### `GET /api/tasks/{taskId}`
+
 Get task status and progress.
 
 **Response:**
+
 ```json
 {
   "status": "IN_PROGRESS",
@@ -524,9 +533,11 @@ Get task status and progress.
 ```
 
 #### `GET /health`
+
 Health check endpoint.
 
 **Response:**
+
 ```json
 {
   "ok": true
@@ -538,16 +549,18 @@ Health check endpoint.
 #### Client → Server
 
 **`join_room_event`**
+
 ```javascript
-socket.emit('join_room_event', { room: taskId })
+socket.emit("join_room_event", { room: taskId });
 ```
 
 #### Server → Client
 
 **`task_update`**
+
 ```javascript
-socket.on('task_update', (data) => {
-  console.log(data)
+socket.on("task_update", (data) => {
+  console.log(data);
   // {
   //   status: 'IN_PROGRESS',
   //   progress: 75,
@@ -556,7 +569,7 @@ socket.on('task_update', (data) => {
   //   claims: [...],
   //   evidence_links: [...]
   // }
-})
+});
 ```
 
 ---
@@ -591,6 +604,7 @@ graph TD
 3. **Evidence Sources**: ICMR, WHO, NCBI, NIH
 
 4. **Generated Response**:
+
    ```
    The main symptoms of diabetes include:
    - Frequent urination
@@ -602,7 +616,7 @@ graph TD
 
 5. **Verification**: Each symptom cross-checked against medical sources
 
-6. **Result**: 
+6. **Result**:
    - ✅ All claims verified (100%)
    - 📚 5 citations from trusted sources
    - 🏆 High confidence score
@@ -635,6 +649,7 @@ docker-compose exec frontend bun test:integration
 ### Port Already in Use
 
 If you see port conflicts:
+
 ```bash
 # PostgreSQL on 5434 (instead of 5432) to avoid conflicts
 # Modify docker-compose.yml if needed
