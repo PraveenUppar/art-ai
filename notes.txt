@@ -1,0 +1,5 @@
+1. docker frontend
+2. docker backend
+3. docker compose
+
+4. Superplane = health-check workflow
