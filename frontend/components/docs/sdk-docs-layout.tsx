@@ -320,7 +320,7 @@ export function SDKDocsLayout({ isLoggedIn }: SDKDocsLayoutProps) {
               href="/"
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
-                "border-stone-300/70 bg-background/80"
+                "border-stone-300/70 bg-background/80",
               )}
             >
               Home
@@ -329,7 +329,7 @@ export function SDKDocsLayout({ isLoggedIn }: SDKDocsLayoutProps) {
               href={isLoggedIn ? "/chat" : "/auth?mode=signin&redirect=/chat"}
               className={cn(
                 buttonVariants({ size: "sm" }),
-                "bg-stone-900 text-white hover:bg-stone-800"
+                "bg-stone-900 text-white hover:bg-stone-800",
               )}
             >
               {isLoggedIn ? "Chat" : "Login"}
