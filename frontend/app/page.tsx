@@ -23,18 +23,18 @@ export default function Home() {
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/auth?mode=signin"
+                  className="inline-flex items-center justify-center rounded-full bg-stone-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-stone-800"
+                >
+                  CLICK HERE TO TRY NOW !!
+                </Link>
               <Link
-                href="/auth?mode=signin"
-                className="inline-flex items-center justify-center rounded-full bg-stone-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-stone-800"
-              >
-                CLICK HERE TO TRY NOW !!
-              </Link>
-              {/* <Link
-                href="/auth?mode=signup"
+                href="/docs"
                 className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-950 transition hover:border-stone-400 hover:bg-stone-50"
               >
-                Sign up
-              </Link> */}
+                Try SDK
+              </Link>
             </div>
           </section>
 
